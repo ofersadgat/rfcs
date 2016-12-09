@@ -24,6 +24,7 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 	let meta = metaFor(obj);
 	let cache = meta.writableCache();
 
+	// if we're not dirty do the same thing as before (just return the data)
 	let result = cache[keyName];
 	if (result === UNDEFINED) {
 		return undefined;
@@ -31,6 +32,7 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 		return result;
 	}
 
+	// otherwise update
 	if (!this.updated(obj, keyName)){
 		cache[keyName];
 	}
@@ -43,6 +45,8 @@ ComputedPropertyPrototype.updated = function(obj, keyName) {
 	let meta = metaFor(obj);
 	let cache = meta.writableCache();
 
+	//loop through dependent properties and see if their versions
+	//have changed.
 	let updated = false;
 	for (idx = 0; idx < this._dependentKeys.length; idx++) {
 		let depKey = this._dependentKeys[idx];
@@ -53,13 +57,16 @@ ComputedPropertyPrototype.updated = function(obj, keyName) {
 		}
 	}
 
+	//if no versions have changed, we havent updated
 	if (!updated){
-		return cache.version;
+		return false;
 	}
 
+	//get the old and new values
 	let previousValue = cache[keyName];
 	let currentValue = Ember.get(obj, keyName);
 
+	//if the value have changed, our version changes
 	if (previousValue !== currentValue){
 		cache.version = {}; //The version just needs to change, the value doesnt actually matter
 		return true;
