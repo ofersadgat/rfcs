@@ -20,6 +20,18 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 	let meta = metaFor(obj);
 	let cache = meta.writableCache();
 
+	if (!this.updated(obj, keyName)){
+		cache[keyName];
+	}
+
+	...
+}
+
+ComputedPropertyPrototype.updated = function(obj, keyName) {
+
+	let meta = metaFor(obj);
+	let cache = meta.writableCache();
+
 	let updated = false;
 	for (idx = 0; idx < this._dependentKeys.length; idx++) {
 		let depKey = this._dependentKeys[idx];
@@ -31,28 +43,18 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 	}
 
 	if (!updated){
-		return cache[keyName];
+		return cache.version;
 	}
-
-	...
-}
-
-ComputedPropertyPrototype.updated = function(obj, keyName) {
-	let previouslyUpdated = computedUpdatedMap.get(obj);
-	if (previouslyUpdated !== undefined){
-		return previouslyUpdated;
-	}
-	let meta = metaFor(obj);
-	let cache = meta.writableCache();
 
 	let previousValue = cache[keyName];
 	let currentValue = Ember.get(obj, keyName);
 
 	if (previousValue !== currentValue){
 		cache.version = {}; //The version just needs to change, the value doesnt actually matter
+		return true;
+	} else {
+		return false;
 	}
-
-	return cache.version;
 }
 
 
