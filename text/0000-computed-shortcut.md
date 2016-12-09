@@ -16,9 +16,20 @@ adding additional effort in most use cases.
 
 ```js
 
+// Currently we use the cleared cache to mark that we're dirty and we would need to
+// change it to not clear the cached data, but still mark that we're dirty (so this
+// pseudo code is broken in that aspect)
+
 ComputedPropertyPrototype.get = function(obj, keyName) {
 	let meta = metaFor(obj);
 	let cache = meta.writableCache();
+
+	let result = cache[keyName];
+	if (result === UNDEFINED) {
+		return undefined;
+	} else if (result !== undefined) {
+		return result;
+	}
 
 	if (!this.updated(obj, keyName)){
 		cache[keyName];
