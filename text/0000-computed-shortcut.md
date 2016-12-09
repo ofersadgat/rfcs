@@ -25,8 +25,8 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
 		let depKey = this._dependentKeys[idx];
 		let propertyVersion = obj[depKey].updated(obj, keyName);
 		if (cache.versions[depKey] !== propertyVersion){
+			cache.versions[depKey] = propertyVersion;
 			updated = true;
-			break;
 		}
 	}
 
